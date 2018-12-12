@@ -1,0 +1,6 @@
+{
+  "spreadsheetId": "${spreadsheetId}",
+  "properties": {
+    "title": "${title}"
+  }
+}

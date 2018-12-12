@@ -1,0 +1,7 @@
+{
+  "spreadsheetId": "${spreadsheetId}",
+  "updatedRange": "${sheet}!${range}",
+  "updatedRows": ${updatedRows},
+  "updatedColumns": ${updatedColumns},
+  "updatedCells": ${updatedCells}
+}
