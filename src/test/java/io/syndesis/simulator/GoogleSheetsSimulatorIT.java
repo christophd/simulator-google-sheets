@@ -32,7 +32,9 @@ import org.springframework.test.context.ContextConfiguration;
 public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
 
     @Autowired
-    private HttpClient sheetsClient;
+    private HttpClient simulatorClient;
+
+    private String accessToken = "cd887efc-7c7d-4e8e-9580-f7502123badf";
 
     /**
      * Sends get spreadsheet request to server expecting positive response message.
@@ -42,12 +44,14 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     public void testGetSpreadsheet() {
         variable("spreadsheetId", "citrus:randomString(44)");
         variable("title", "TestData");
+        variable("accessToken", accessToken);
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .send()
-                .get("/${spreadsheetId}");
+                .get("/v4/spreadsheets/${spreadsheetId}")
+                .header("Authorization", "Bearer ${accessToken}");
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .receive()
                 .response(HttpStatus.OK)
                 .payload(new ClassPathResource("templates/spreadsheet.json"));
@@ -60,13 +64,15 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testCreateSpreadsheet() {
         variable("title", "TestData");
+        variable("accessToken", accessToken);
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .send()
-                .post()
+                .post("/v4/spreadsheets")
+                .header("Authorization", "Bearer ${accessToken}")
                 .payload("{\"properties\": {\"title\": \"${title}\"}}");
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .receive()
                 .response(HttpStatus.OK)
                 .payload("{\"spreadsheetId\": \"@ignore@\", \"properties\": {\"title\": \"${title}\"}}");
@@ -81,12 +87,14 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
         variable("spreadsheetId", "citrus:randomString(44)");
         variable("sheet", "TestData");
         variable("range", "A1:C5");
+        variable("accessToken", accessToken);
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .send()
-                .get("/${spreadsheetId}/values/${sheet}!${range}");
+                .get("/v4/spreadsheets/${spreadsheetId}/values/${sheet}!${range}")
+                .header("Authorization", "Bearer ${accessToken}");
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .receive()
                 .response(HttpStatus.OK)
                 .payload("{\"range\": \"${sheet}!${range}\",\"majorDimension\": \"ROWS\",\"values\": []}");
@@ -101,17 +109,19 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
         variable("spreadsheetId", "citrus:randomString(44)");
         variable("sheet", "TestData");
         variable("range", "A1:C5");
+        variable("accessToken", accessToken);
 
         variable("updatedRows", 2);
         variable("updatedColumns", 2);
         variable("updatedCells", 4);
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .send()
-                .put("/${spreadsheetId}/values/${sheet}!${range}")
+                .put("/v4/spreadsheets/${spreadsheetId}/values/${sheet}!${range}")
+                .header("Authorization", "Bearer ${accessToken}")
                 .payload("{\"values\":[[\"A1\",\"B1\"],[\"A2\",\"B2\"]]}");
 
-        http().client(sheetsClient)
+        http().client(simulatorClient)
                 .receive()
                 .response(HttpStatus.OK)
                 .payload(new ClassPathResource("templates/updateValuesResponse.json"));

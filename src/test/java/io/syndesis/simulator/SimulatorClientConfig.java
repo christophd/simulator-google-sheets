@@ -9,6 +9,7 @@ import java.security.cert.CertificateException;
 
 import com.consol.citrus.dsl.endpoint.CitrusEndpoints;
 import com.consol.citrus.http.client.HttpClient;
+import com.consol.citrus.http.server.HttpServer;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
@@ -27,10 +28,19 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 public class SimulatorClientConfig {
 
     @Bean
-    public HttpClient sheetsClient() {
+    public HttpServer appServer() {
+        return CitrusEndpoints.http()
+                .server()
+                .port(8081)
+                .autoStart(true)
+                .build();
+    }
+
+    @Bean
+    public HttpClient simulatorClient() {
         return CitrusEndpoints.http()
                 .client()
-                .requestUrl("https://localhost:8443/v4/spreadsheets")
+                .requestUrl("https://localhost:8443")
                 .requestFactory(sslRequestFactory())
                 .build();
     }
