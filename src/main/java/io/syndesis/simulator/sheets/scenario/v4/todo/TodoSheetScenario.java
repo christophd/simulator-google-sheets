@@ -14,25 +14,29 @@
  * limitations under the License.
  */
 
-package io.syndesis.simulator.sheets.scenario;
+package io.syndesis.simulator.sheets.scenario.v4.todo;
 
-import com.consol.citrus.simulator.scenario.*;
+import com.consol.citrus.simulator.scenario.AbstractSimulatorScenario;
+import com.consol.citrus.simulator.scenario.Scenario;
+import com.consol.citrus.simulator.scenario.ScenarioDesigner;
 import org.springframework.http.HttpStatus;
 
 /**
  * @author Christoph Deppisch
  */
-@Scenario("INTERNAL_SERVER_ERROR")
-public class DefaultScenario extends AbstractSimulatorScenario {
+@Scenario("TodoSheet")
+public class TodoSheetScenario extends AbstractSimulatorScenario {
 
     @Override
     public void run(ScenarioDesigner scenario) {
         scenario
-            .receive();
+            .receive()
+            .name("todoSheetRequest");
 
         scenario
             .http()
             .send()
-            .response(HttpStatus.INTERNAL_SERVER_ERROR);
+            .response(HttpStatus.OK)
+            .payload("{}");
     }
 }
