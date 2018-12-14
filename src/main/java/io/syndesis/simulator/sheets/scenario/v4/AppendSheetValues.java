@@ -40,15 +40,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 /**
  * @author Christoph Deppisch
  */
-@Scenario("UpdateSheetValues")
-@RequestMapping(value = "/v4/spreadsheets/{spreadsheetId}/values/{range}", method = RequestMethod.PUT)
-public class UpdateSheetValues extends AbstractSimulatorScenario {
+@Scenario("AppendSheetValues")
+@RequestMapping(value = "/v4/spreadsheets/{spreadsheetId}/values/{range}:append", method = RequestMethod.POST)
+public class AppendSheetValues extends AbstractSimulatorScenario {
 
     private JsonObjectParser jsonObjectParser = new JsonObjectParser.Builder(new JacksonFactory()).build();
     private final TemplateService templates;
 
     @Autowired
-    public UpdateSheetValues(TemplateService templates) {
+    public AppendSheetValues(TemplateService templates) {
         this.templates = templates;
     }
 
@@ -77,6 +77,6 @@ public class UpdateSheetValues extends AbstractSimulatorScenario {
             .http()
             .send()
             .response(HttpStatus.OK)
-            .payload(templates.getJsonMessageTemplate("updateValuesResponse"));
+            .payload(templates.getJsonMessageTemplate("appendValuesResponse"));
     }
 }

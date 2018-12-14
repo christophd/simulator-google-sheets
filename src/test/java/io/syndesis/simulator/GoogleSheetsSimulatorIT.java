@@ -126,4 +126,53 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
                 .response(HttpStatus.OK)
                 .payload(new ClassPathResource("templates/updateValuesResponse.json"));
     }
+
+    /**
+     * Sends append sheet values request to server expecting positive response message.
+     */
+    @Test
+    @CitrusTest
+    public void testAppendValues() {
+        variable("spreadsheetId", "citrus:randomString(44)");
+        variable("sheet", "TestData");
+        variable("range", "A1");
+        variable("accessToken", accessToken);
+
+        variable("updatedRows", 1);
+        variable("updatedColumns", 4);
+        variable("updatedCells", 4);
+
+        http().client(simulatorClient)
+                .send()
+                .post("/v4/spreadsheets/${spreadsheetId}/values/${sheet}!${range}:append")
+                .header("Authorization", "Bearer ${accessToken}")
+                .payload("{\"values\":[[\"A1\",\"B1\", \"C1\", \"D1\"]]}");
+
+        http().client(simulatorClient)
+                .receive()
+                .response(HttpStatus.OK)
+                .payload(new ClassPathResource("templates/appendValuesResponse.json"));
+    }
+
+    /**
+     * Sends clear sheet values request to server expecting positive response message.
+     */
+    @Test
+    @CitrusTest
+    public void testClearValues() {
+        variable("spreadsheetId", "citrus:randomString(44)");
+        variable("sheet", "TestData");
+        variable("range", "A1:D10");
+        variable("accessToken", accessToken);
+
+        http().client(simulatorClient)
+                .send()
+                .post("/v4/spreadsheets/${spreadsheetId}/values/${sheet}!${range}:clear")
+                .header("Authorization", "Bearer ${accessToken}");
+
+        http().client(simulatorClient)
+                .receive()
+                .response(HttpStatus.OK)
+                .payload("{\"spreadsheetId\": \"${spreadsheetId}\", \"clearedRange\": \"${sheet}!${range}\"}");
+    }
 }

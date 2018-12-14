@@ -46,7 +46,7 @@ public class GetSheetValues extends AbstractSimulatorScenario {
             .http()
             .receive()
             .get()
-            .validationCallback(VariableHelper::extractVariablesFromValueUri);
+            .validationCallback(VariableHelper::createVariablesFromUri);
 
         scenario
             .http()

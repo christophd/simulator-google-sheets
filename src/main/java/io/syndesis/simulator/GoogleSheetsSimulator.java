@@ -22,6 +22,10 @@ import com.consol.citrus.http.message.HttpMessage;
 import com.consol.citrus.message.Message;
 import com.consol.citrus.simulator.http.SimulatorRestAdapter;
 import com.consol.citrus.simulator.http.SimulatorRestConfigurationProperties;
+import com.consol.citrus.simulator.scenario.mapper.ContentBasedJsonPathScenarioMapper;
+import com.consol.citrus.simulator.scenario.mapper.ScenarioMapper;
+import io.syndesis.simulator.sheets.mapper.GoogleSheetsScenarioMapperChain;
+import io.syndesis.simulator.sheets.mapper.SpreadsheetIdScenarioMapper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.http.HttpStatus;
@@ -39,6 +43,12 @@ public class GoogleSheetsSimulator extends SimulatorRestAdapter {
     @Override
     public String urlMapping(SimulatorRestConfigurationProperties simulatorRestConfiguration) {
         return "/v4/spreadsheets/**";
+    }
+
+    @Override
+    public ScenarioMapper scenarioMapper() {
+        return new GoogleSheetsScenarioMapperChain(new SpreadsheetIdScenarioMapper(),
+                                                   new ContentBasedJsonPathScenarioMapper().addJsonPathExpression("$.properties.title"));
     }
 
     @Override
