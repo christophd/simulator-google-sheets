@@ -77,7 +77,7 @@ public final class VariableHelper {
                         .orElse(range));
             }
         } else {
-            Matcher requestMatcher = Pattern.compile("/v4/spreadsheets/(\\S+).*").matcher(requestUri);
+            Matcher requestMatcher = Pattern.compile("/v4/spreadsheets/([^/]+).*").matcher(requestUri);
 
             if (requestMatcher.find()) {
                 testContext.setVariable("spreadsheetId", requestMatcher.group(1));
