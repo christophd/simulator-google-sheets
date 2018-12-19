@@ -54,7 +54,7 @@ public class SimulatorClientConfig {
     public org.apache.http.client.HttpClient httpClient() {
         try {
             SSLContext sslcontext = SSLContexts.custom()
-                    .loadTrustMaterial(new ClassPathResource("googleapis.jks").getFile(), "secret".toCharArray(),
+                    .loadTrustMaterial(new ClassPathResource("googleapis.jks", GoogleSheetsSimulator.class).getFile(), "secret".toCharArray(),
                             new TrustSelfSignedStrategy())
                     .build();
 

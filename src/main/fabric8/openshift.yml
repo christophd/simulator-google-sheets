@@ -1,0 +1,121 @@
+---
+apiVersion: v1
+kind: List
+items:
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    name: ${application.name}
+    namespace: ${openshift.namespace}
+    labels:
+      app: ${application.name}
+      provider: fabric8
+      project: ${application.name}
+      version: ${project.version}
+      group: ${project.groupId}
+  spec:
+    replicas: 1
+    strategy:
+      type: Rolling
+      rollingParams:
+        updatePeriodSeconds: 1
+        intervalSeconds: 1
+        timeoutSeconds: 600
+        maxUnavailable: 25%
+        maxSurge: 25%
+      resources: {}
+    selector:
+      project: ${application.name}
+      provider: fabric8
+      version: ${project.version}
+      group: ${project.groupId}
+    template:
+      metadata:
+        labels:
+          app: ${application.name}
+          provider: fabric8
+          project: ${application.name}
+          version: ${project.version}
+          group: ${project.groupId}
+      spec:
+        containers:
+        - name: ${application.name}
+          image: ${openshift.registry}/${image.name}:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 8443
+            name: https
+            protocol: TCP
+          securityContext:
+            privileged: false
+          volumeMounts:
+          - name: tomcat-logs
+            mountPath: /opt/tomcat/logs
+          - name: tomcat-work
+            mountPath: /opt/tomcat/work
+          - name: tomcat-temp
+            mountPath: /opt/tomcat/temp
+        volumes:
+        - name: tomcat-logs
+          emptyDir: {}
+        - name: tomcat-work
+          emptyDir: {}
+        - name: tomcat-temp
+          emptyDir: {}
+    triggers:
+    - type: ImageChange
+      imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${application.name}
+        from:
+          kind: ImageStreamTag
+          name: ${application.name}:latest
+          namespace: ${openshift.namespace}
+    - type: ConfigChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    name: ${application.name}
+    namespace: ${openshift.namespace}
+    labels:
+      expose: "true"
+      app: ${application.name}
+      provider: fabric8
+      project: ${application.name}
+      version: ${project.version}
+      group: ${project.groupId}
+  spec:
+    ports:
+    - name: 8443-tcp
+      protocol: TCP
+      port: 8443
+      targetPort: 8443
+    selector:
+      project: ${application.name}
+      provider: fabric8
+      group: ${project.groupId}
+    type: ClusterIP
+    sessionAffinity: None
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: ${application.name}
+    namespace: ${openshift.namespace}
+    labels:
+      expose: "true"
+      provider: fabric8
+      project: ${application.name}
+      version: ${project.version}
+      group: ${project.groupId}
+  spec:
+    host: ${application.name}.${openshift.domain}
+    to:
+      kind: Service
+      name: ${application.name}
+      weight: 100
+    port:
+      targetPort: 8443-tcp
+    tls:
+      termination: passthrough
+    wildcardPolicy: None
