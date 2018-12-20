@@ -1,0 +1,10 @@
+{
+  "spreadsheetId": "${spreadsheetId}",
+  "valueRanges": [
+    {
+      "range": "${sheet}!${range}",
+      "majorDimension": "${majorDimension}",
+      "values": []
+    }
+  ]
+}

@@ -39,7 +39,7 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
 
     public static final String SPREADSHEET_ID = "TodoSheet";
 
-    List<List<String>> todoEntries = Arrays.asList(
+    private final List<List<String>> todoEntries = Arrays.asList(
                                         Collections.singletonList("Walk the dog"),
                                         Collections.singletonList("Feed the dog"),
                                         Collections.singletonList("Wash the dog"),
@@ -51,11 +51,15 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
         scenario
             .receive()
             .validationCallback((message, context) -> {
-                VariableHelper.createVariablesFromUri(message, context);
+                VariableHelper.createVariablesFromRequest(message, context);
 
                 String requestUri = Optional.ofNullable(message.getHeader(HttpMessageHeaders.HTTP_REQUEST_URI))
                         .map(Object::toString)
                         .orElse("");
+
+                if (!context.getVariables().containsKey("majorDimension")) {
+                    context.setVariable("majorDimension", "ROWS");
+                }
 
                 String operation;
                 if (requestUri.contains("/values/")) {
@@ -84,15 +88,18 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
                 .when("${method}-${operation}", Matchers.is("GET-values"))
                 .actions(scenario.createVariable("responsePayload","{" +
                                         "\"range\": \"${sheet}!${range}\"," +
-                                        "\"majorDimension\": \"ROWS\"," +
+                                        "\"majorDimension\": \"${majorDimension}\"," +
                                         "\"values\": " + getTodoEntries() +
                                     "}"));
 
         scenario.conditional()
                 .when("${method}-${operation}", Matchers.is("GET-valuesBatch"))
-                .actions(scenario.createVariable("responsePayload","{\"spreadsheetId\": \"${spreadsheetId}\"," +
+                .actions(scenario.createVariable("responsePayload","{" +
+                                    "\"spreadsheetId\": \"${spreadsheetId}\"," +
                                     "\"valueRanges\": [" +
                                         "{" +
+                                            "\"range\": \"${sheet}!${range}\"," +
+                                            "\"majorDimension\": \"${majorDimension}\"," +
                                             "\"values\":" + getTodoEntries() +
                                         "}" +
                                     "]}"));

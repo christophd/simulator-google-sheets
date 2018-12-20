@@ -73,12 +73,17 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
         http().client(simulatorClient)
                 .send()
                 .get("/v4/spreadsheets/${spreadsheetId}/values/${sheet}!${range}")
+                .queryParam("majorDimension", "ROWS")
                 .header("Authorization", "Bearer ${accessToken}");
 
         http().client(simulatorClient)
                 .receive()
                 .response(HttpStatus.OK)
-                .payload("{\"range\": \"${sheet}!${range}\",\"majorDimension\": \"ROWS\",\"values\": [[\"Walk the dog\"],[\"Feed the dog\"],[\"Wash the dog\"],[\"Play with the dog\"]]}");
+                .payload("{" +
+                            "\"range\": \"${sheet}!${range}\"," +
+                            "\"majorDimension\": \"ROWS\"," +
+                            "\"values\": [[\"Walk the dog\"],[\"Feed the dog\"],[\"Wash the dog\"],[\"Play with the dog\"]]" +
+                        "}");
     }
 
     /**
@@ -93,6 +98,8 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
         http().client(simulatorClient)
                 .send()
                 .get("/v4/spreadsheets/${spreadsheetId}/values:batchGet")
+                .queryParam("range", "TestSheet!A1:A4")
+                .queryParam("majorDimension", "ROWS")
                 .header("Authorization", "Bearer ${accessToken}");
 
         http().client(simulatorClient)
@@ -100,7 +107,11 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
                 .response(HttpStatus.OK)
                 .payload("{\"spreadsheetId\": \"${spreadsheetId}\"," +
                         "\"valueRanges\": [" +
-                            "{\"values\": [[\"Walk the dog\"],[\"Feed the dog\"],[\"Wash the dog\"],[\"Play with the dog\"]]}" +
+                            "{" +
+                                "\"range\": \"TestSheet!A1:A4\"," +
+                                "\"majorDimension\": \"ROWS\"," +
+                                "\"values\": [[\"Walk the dog\"],[\"Feed the dog\"],[\"Wash the dog\"],[\"Play with the dog\"]]" +
+                            "}" +
                         "]}");
     }
 

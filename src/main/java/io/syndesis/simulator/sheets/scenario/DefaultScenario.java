@@ -22,7 +22,7 @@ import org.springframework.http.HttpStatus;
 /**
  * @author Christoph Deppisch
  */
-@Scenario("INTERNAL_SERVER_ERROR")
+@Scenario("InternalServerError")
 public class DefaultScenario extends AbstractSimulatorScenario {
 
     @Override

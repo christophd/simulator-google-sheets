@@ -37,7 +37,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     private String accessToken = "cd887efc-7c7d-4e8e-9580-f7502123badf";
 
     /**
-     * Sends get spreadsheet request to server expecting positive response message.
+     * Sends get spreadsheet request to server.
      */
     @Test
     @CitrusTest
@@ -58,7 +58,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     }
 
     /**
-     * Sends create spreadsheet request to server expecting positive response message.
+     * Sends create spreadsheet request to server.
      */
     @Test
     @CitrusTest
@@ -79,7 +79,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     }
 
     /**
-     * Sends get sheet values request to server expecting positive response message.
+     * Sends get sheet values request to server.
      */
     @Test
     @CitrusTest
@@ -101,7 +101,39 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     }
 
     /**
-     * Sends update sheet values request to server expecting positive response message.
+     * Sends get sheet values batch request to server.
+     */
+    @Test
+    @CitrusTest
+    public void testGetValuesBatch() {
+        variable("spreadsheetId", "citrus:randomString(44)");
+        variable("sheet", "TestData");
+        variable("range", "A1:C5");
+        variable("accessToken", accessToken);
+
+        http().client(simulatorClient)
+                .send()
+                .get("/v4/spreadsheets/${spreadsheetId}/values:batchGet")
+                .queryParam("range", "${sheet}!${range}")
+                .queryParam("majorDimension", "ROWS")
+                .header("Authorization", "Bearer ${accessToken}");
+
+        http().client(simulatorClient)
+                .receive()
+                .response(HttpStatus.OK)
+                .payload("{" +
+                        "\"spreadsheetId\": \"${spreadsheetId}\"," +
+                        "\"valueRanges\": [" +
+                            "{" +
+                                "\"range\": \"${sheet}!${range}\"," +
+                                "\"majorDimension\": \"ROWS\"," +
+                                "\"values\": []" +
+                            "}" +
+                        "]}");
+    }
+
+    /**
+     * Sends update sheet values request to server.
      */
     @Test
     @CitrusTest
@@ -128,7 +160,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     }
 
     /**
-     * Sends append sheet values request to server expecting positive response message.
+     * Sends append sheet values request to server.
      */
     @Test
     @CitrusTest
@@ -155,7 +187,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     }
 
     /**
-     * Sends clear sheet values request to server expecting positive response message.
+     * Sends clear sheet values request to server.
      */
     @Test
     @CitrusTest

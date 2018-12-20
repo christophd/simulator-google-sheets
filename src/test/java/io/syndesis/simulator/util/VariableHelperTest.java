@@ -3,6 +3,7 @@ package io.syndesis.simulator.util;
 import java.util.UUID;
 
 import com.consol.citrus.context.TestContext;
+import com.consol.citrus.http.message.HttpMessage;
 import com.consol.citrus.http.message.HttpMessageHeaders;
 import com.consol.citrus.message.DefaultMessage;
 import org.junit.Assert;
@@ -31,6 +32,36 @@ public class VariableHelperTest {
         TestContext context = new TestContext();
         VariableHelper.createVariablesFromUri(new DefaultMessage(), context);
         Assert.assertFalse(context.getVariables().containsKey("spreadsheetId"));
+    }
+
+    @Test
+    public void testEmptyQueryParams() {
+        TestContext context = new TestContext();
+
+        VariableHelper.createVariablesFromQueryParams(new HttpMessage(), context);
+
+        Assert.assertFalse(context.getVariables().containsKey("spreadsheetId"));
+        Assert.assertFalse(context.getVariables().containsKey("sheet"));
+        Assert.assertFalse(context.getVariables().containsKey("range"));
+    }
+
+    @Test
+    public void testQueryParams() {
+        String spreadsheetId = UUID.randomUUID().toString();
+        String sheet = "TestSheet";
+        String range = "A1:D10";
+
+        TestContext context = new TestContext();
+
+        VariableHelper.createVariablesFromQueryParams(new HttpMessage()
+                                                        .queryParam("spreadsheetId", spreadsheetId)
+                                                        .queryParam("majorDimension", "COLUMNS")
+                                                        .queryParam("range", sheet + "!" + range), context);
+
+        Assert.assertEquals(spreadsheetId, context.getVariable("spreadsheetId"));
+        Assert.assertEquals(sheet, context.getVariable("sheet"));
+        Assert.assertEquals(range, context.getVariable("range"));
+        Assert.assertEquals("COLUMNS", context.getVariable("majorDimension"));
     }
 
     @Test
