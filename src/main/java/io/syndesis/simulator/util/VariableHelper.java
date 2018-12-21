@@ -99,19 +99,35 @@ public final class VariableHelper {
                 .orElse("");
 
         if (requestUri.contains("/values/")) {
-            Matcher requestMatcher = Pattern.compile("/v4/spreadsheets/(\\S+)/values/(\\S+)!(\\S+)").matcher(requestUri);
+            if (requestUri.contains("!")) {
+                Matcher requestMatcher = Pattern.compile("/v4/spreadsheets/(\\S+)/values/(\\S+)!(\\S+)").matcher(requestUri);
 
-            if (requestMatcher.find()) {
-                testContext.setVariable("spreadsheetId", requestMatcher.group(1));
-                testContext.setVariable("sheet", requestMatcher.group(2));
+                if (requestMatcher.find()) {
+                    testContext.setVariable("spreadsheetId", requestMatcher.group(1));
+                    testContext.setVariable("sheet", requestMatcher.group(2));
 
-                String range = requestMatcher.group(3);
+                    String range = requestMatcher.group(3);
 
-                testContext.setVariable("range", Stream.of(":clear", ":append")
-                        .filter(range::endsWith)
-                        .map(suffix -> range.substring(0, range.length() - suffix.length()))
-                        .findAny()
-                        .orElse(range));
+                    testContext.setVariable("range", Stream.of(":clear", ":append")
+                            .filter(range::endsWith)
+                            .map(suffix -> range.substring(0, range.length() - suffix.length()))
+                            .findAny()
+                            .orElse(range));
+                }
+            } else {
+                Matcher requestMatcher = Pattern.compile("/v4/spreadsheets/(\\S+)/values/(\\S+)").matcher(requestUri);
+
+                if (requestMatcher.find()) {
+                    testContext.setVariable("spreadsheetId", requestMatcher.group(1));
+
+                    String range = requestMatcher.group(2);
+
+                    testContext.setVariable("range", Stream.of(":clear", ":append")
+                            .filter(range::endsWith)
+                            .map(suffix -> range.substring(0, range.length() - suffix.length()))
+                            .findAny()
+                            .orElse(range));
+                }
             }
         } else {
             Matcher requestMatcher = Pattern.compile("/v4/spreadsheets/([^/]+).*").matcher(requestUri);
