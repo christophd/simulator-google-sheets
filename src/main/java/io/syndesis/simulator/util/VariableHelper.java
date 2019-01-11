@@ -33,6 +33,21 @@ import org.springframework.util.StringUtils;
  */
 public final class VariableHelper {
 
+    public enum Variables {
+        MAJOR_DIMENSION("majorDimension"),
+        SHEET("sheet");
+
+        private final String name;
+
+        Variables(String name) {
+            this.name = name;
+        }
+
+        public String value() {
+            return name;
+        }
+    }
+
     /**
      * Prevent instantiation.
      */
@@ -78,6 +93,10 @@ public final class VariableHelper {
                 .map(keyValue -> Optional.ofNullable(StringUtils.split(keyValue, "=")).orElse(new String[] {keyValue, ""}))
                 .filter(keyValue -> StringUtils.hasText(keyValue[0]))
                 .collect(Collectors.toMap(keyValue -> keyValue[0], keyValue -> keyValue[1]));
+
+        if (params.containsKey("ranges")) {
+            params.put("range", params.get("ranges"));
+        }
 
         if (Optional.ofNullable(params.get("range")).orElse("").contains("!")) {
             String[] rangeCoordinate = params.get("range").split("!");
@@ -135,6 +154,18 @@ public final class VariableHelper {
             if (requestMatcher.find()) {
                 testContext.setVariable("spreadsheetId", requestMatcher.group(1));
             }
+        }
+
+        setDefaultVariables(testContext);
+    }
+
+    private static void setDefaultVariables(TestContext testContext) {
+        if (!testContext.getVariables().containsKey(Variables.SHEET.value())) {
+            testContext.setVariable(Variables.SHEET.value(), "Sheet1");
+        }
+
+        if (!testContext.getVariables().containsKey(Variables.MAJOR_DIMENSION.value())) {
+            testContext.setVariable(Variables.MAJOR_DIMENSION.value(), "ROWS");
         }
     }
 }

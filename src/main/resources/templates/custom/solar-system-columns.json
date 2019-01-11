@@ -1,0 +1,14 @@
+{
+  "spreadsheetId": "${spreadsheetId}",
+  "valueRanges": [
+    {
+      "range": "${sheet}!${range}",
+      "majorDimension": "${majorDimension}",
+      "values": [
+        ["Name", "Sun", "Jupiter", "Saturn", "Neptune", "Uranus", "Earth", "Venus", "Mars", "Mercury"],
+        ["Radius", 695000, 71492, 60268, 24766, 25559, 6378, 6052, 3397, 2440],
+        ["Distance", 0, 1427.0, 778.5, 4497.1, 2871.0, 149.6, 108.2, 227.9, 57.9]
+      ]
+    }
+  ]
+}

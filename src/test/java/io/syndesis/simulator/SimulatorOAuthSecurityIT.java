@@ -9,6 +9,7 @@ import com.consol.citrus.http.message.HttpMessageHeaders;
 import com.consol.citrus.http.server.HttpServer;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +26,9 @@ public class SimulatorOAuthSecurityIT extends JUnit4CitrusTestDesigner {
 
     @Autowired
     private HttpServer appServer;
+
+    @Value("${simulator.oauth2.client.accessToken}")
+    private String accessToken;
 
     private final String clientId = "syndesis-client";
     private final String clientSecret = "syndesis";
@@ -279,7 +283,7 @@ public class SimulatorOAuthSecurityIT extends JUnit4CitrusTestDesigner {
     public void testCheckToken() {
         variable("id", clientId);
         variable("secret", clientSecret);
-        variable("token", "cd887efc-7c7d-4e8e-9580-f7502123badf");
+        variable("token", accessToken);
 
         http().client(simulatorClient)
                 .send()

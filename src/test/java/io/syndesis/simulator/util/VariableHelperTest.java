@@ -25,7 +25,6 @@ public class VariableHelperTest {
         Assert.assertEquals(spreadsheetId, VariableHelper.extractSpreadsheetIdFromUri(String.format("/v4/spreadsheets/%s/values/A1!B2", spreadsheetId)));
         Assert.assertEquals(spreadsheetId, VariableHelper.extractSpreadsheetIdFromUri(String.format("/v4/spreadsheets/%s/values/A1!C4:clear", spreadsheetId)));
         Assert.assertEquals(spreadsheetId, VariableHelper.extractSpreadsheetIdFromUri(String.format("/v4/spreadsheets/%s/values/A1!A10:append", spreadsheetId)));
-
     }
 
     @Test
@@ -76,7 +75,7 @@ public class VariableHelperTest {
 
         VariableHelper.createVariablesFromUri(new DefaultMessage().setHeader(HttpMessageHeaders.HTTP_REQUEST_URI, uri), context);
         Assert.assertEquals(spreadsheetId, context.getVariable("spreadsheetId"));
-        Assert.assertFalse(context.getVariables().containsKey("sheet"));
+        Assert.assertEquals("Sheet1", context.getVariable("sheet"));
         Assert.assertEquals(range, context.getVariable("range"));
     }
 

@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package io.syndesis.simulator.sheets.scenario.v4.todo;
+package io.syndesis.simulator.sheets.scenario.v4.custom;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.consol.citrus.http.message.HttpMessageHeaders;
 import com.consol.citrus.simulator.scenario.AbstractSimulatorScenario;
@@ -37,7 +38,7 @@ import org.springframework.http.HttpStatus;
 @Scenario(TodoSheetScenario.SPREADSHEET_ID)
 public class TodoSheetScenario extends AbstractSimulatorScenario {
 
-    public static final String SPREADSHEET_ID = "TodoSheet";
+    public static final String SPREADSHEET_ID = "TodoList";
 
     private final List<List<String>> todoEntries = Arrays.asList(
                                         Collections.singletonList("Walk the dog"),
@@ -57,19 +58,9 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
                         .map(Object::toString)
                         .orElse("");
 
-                if (!context.getVariables().containsKey("majorDimension")) {
-                    context.setVariable("majorDimension", "ROWS");
-                }
+                context.setVariable("todo_entries", getTodoEntries(context.getVariable(VariableHelper.Variables.MAJOR_DIMENSION.value())));
 
-                String operation;
-                if (requestUri.contains("/values/")) {
-                    operation = "values";
-                } else if (requestUri.contains("/values:batchGet")) {
-                    operation = "valuesBatch";
-                } else {
-                    operation = "spreadsheet";
-                }
-                context.setVariable("operation", operation);
+                context.setVariable("operation", getOperation(requestUri));
                 context.setVariable("method", message.getHeader(HttpMessageHeaders.HTTP_REQUEST_METHOD));
             });
 
@@ -89,7 +80,7 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
                 .actions(scenario.createVariable("responsePayload","{" +
                                         "\"range\": \"${sheet}!${range}\"," +
                                         "\"majorDimension\": \"${majorDimension}\"," +
-                                        "\"values\": " + getTodoEntries() +
+                                        "\"values\": ${todo_entries}" +
                                     "}"));
 
         scenario.conditional()
@@ -100,7 +91,7 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
                                         "{" +
                                             "\"range\": \"${sheet}!${range}\"," +
                                             "\"majorDimension\": \"${majorDimension}\"," +
-                                            "\"values\":" + getTodoEntries() +
+                                            "\"values\": ${todo_entries}" +
                                         "}" +
                                     "]}"));
 
@@ -121,9 +112,29 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
             .payload("${responsePayload}");
     }
 
-    private String getTodoEntries() {
+    private String getOperation(String requestUri) {
+        String operation;
+        if (requestUri.contains("/values/")) {
+            operation = "values";
+        } else if (requestUri.contains("/values:batchGet")) {
+            operation = "valuesBatch";
+        } else {
+            operation = "spreadsheet";
+        }
+
+        return operation;
+    }
+
+    private String getTodoEntries(String majorDimension) {
         try {
-            return new ObjectMapper().writer().writeValueAsString(todoEntries);
+            if ("ROWS".equals(majorDimension)) {
+                return new ObjectMapper().writer().writeValueAsString(todoEntries);
+            } else {
+                return "[" + todoEntries.stream()
+                                        .map(row -> row.get(0))
+                                        .map(value -> "\"" + value + "\"")
+                                        .collect(Collectors.joining(",")) + "]";
+            }
         } catch (JsonProcessingException e) {
             return "[]";
         }

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package io.syndesis.simulator.todo;
+package io.syndesis.simulator.custom;
 
 import com.consol.citrus.annotations.CitrusTest;
 import com.consol.citrus.dsl.junit.JUnit4CitrusTestDesigner;
 import com.consol.citrus.http.client.HttpClient;
 import io.syndesis.simulator.SimulatorClientConfig;
-import io.syndesis.simulator.sheets.scenario.v4.todo.TodoSheetScenario;
+import io.syndesis.simulator.sheets.scenario.v4.custom.TodoSheetScenario;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -35,7 +36,8 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
     @Autowired
     private HttpClient simulatorClient;
 
-    private String accessToken = "cd887efc-7c7d-4e8e-9580-f7502123badf";
+    @Value("${simulator.oauth2.client.accessToken}")
+    private String accessToken;
 
     /**
      * Get todosheet spreadsheet.
@@ -68,12 +70,13 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
         variable("spreadsheetId", TodoSheetScenario.SPREADSHEET_ID);
         variable("sheet", "TodoSheet");
         variable("range", "A1:A4");
+        variable("majorDimension", "ROWS");
         variable("accessToken", accessToken);
 
         http().client(simulatorClient)
                 .send()
                 .get("/v4/spreadsheets/${spreadsheetId}/values/${sheet}!${range}")
-                .queryParam("majorDimension", "ROWS")
+                .queryParam("majorDimension", "${majorDimension}")
                 .header("Authorization", "Bearer ${accessToken}");
 
         http().client(simulatorClient)
@@ -81,8 +84,36 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
                 .response(HttpStatus.OK)
                 .payload("{" +
                             "\"range\": \"${sheet}!${range}\"," +
-                            "\"majorDimension\": \"ROWS\"," +
+                            "\"majorDimension\": \"${majorDimension}\"," +
                             "\"values\": [[\"Walk the dog\"],[\"Feed the dog\"],[\"Wash the dog\"],[\"Play with the dog\"]]" +
+                        "}");
+    }
+
+    /**
+     * Get todosheet values.
+     */
+    @Test
+    @CitrusTest
+    public void testGetTodoColumnValues() {
+        variable("spreadsheetId", TodoSheetScenario.SPREADSHEET_ID);
+        variable("sheet", "TodoSheet");
+        variable("range", "A1:A4");
+        variable("majorDimension", "COLUMNS");
+        variable("accessToken", accessToken);
+
+        http().client(simulatorClient)
+                .send()
+                .get("/v4/spreadsheets/${spreadsheetId}/values/${sheet}!${range}")
+                .queryParam("majorDimension", "COLUMNS")
+                .header("Authorization", "Bearer ${accessToken}");
+
+        http().client(simulatorClient)
+                .receive()
+                .response(HttpStatus.OK)
+                .payload("{" +
+                        "\"range\": \"${sheet}!${range}\"," +
+                        "\"majorDimension\": \"${majorDimension}\"," +
+                        "\"values\": [\"Walk the dog\",\"Feed the dog\",\"Wash the dog\",\"Play with the dog\"]" +
                         "}");
     }
 
@@ -93,13 +124,16 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testGetTodoValuesBatch() {
         variable("spreadsheetId", TodoSheetScenario.SPREADSHEET_ID);
+        variable("range", "A1:A4");
+        variable("sheet", "TodoSheet");
+        variable("majorDimension", "ROWS");
         variable("accessToken", accessToken);
 
         http().client(simulatorClient)
                 .send()
                 .get("/v4/spreadsheets/${spreadsheetId}/values:batchGet")
-                .queryParam("range", "TestSheet!A1:A4")
-                .queryParam("majorDimension", "ROWS")
+                .queryParam("ranges", "${sheet}!${range}")
+                .queryParam("majorDimension", "${majorDimension}")
                 .header("Authorization", "Bearer ${accessToken}");
 
         http().client(simulatorClient)
@@ -108,8 +142,8 @@ public class TodoSheetSimulatorIT extends JUnit4CitrusTestDesigner {
                 .payload("{\"spreadsheetId\": \"${spreadsheetId}\"," +
                         "\"valueRanges\": [" +
                             "{" +
-                                "\"range\": \"TestSheet!A1:A4\"," +
-                                "\"majorDimension\": \"ROWS\"," +
+                                "\"range\": \"${sheet}!${range}\"," +
+                                "\"majorDimension\": \"${majorDimension}\"," +
                                 "\"values\": [[\"Walk the dog\"],[\"Feed the dog\"],[\"Wash the dog\"],[\"Play with the dog\"]]" +
                             "}" +
                         "]}");

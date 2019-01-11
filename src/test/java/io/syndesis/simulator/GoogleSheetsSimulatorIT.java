@@ -21,6 +21,7 @@ import com.consol.citrus.dsl.junit.JUnit4CitrusTestDesigner;
 import com.consol.citrus.http.client.HttpClient;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,7 +35,8 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @Autowired
     private HttpClient simulatorClient;
 
-    private String accessToken = "cd887efc-7c7d-4e8e-9580-f7502123badf";
+    @Value("${simulator.oauth2.client.accessToken}")
+    private String accessToken;
 
     /**
      * Sends get spreadsheet request to server.
