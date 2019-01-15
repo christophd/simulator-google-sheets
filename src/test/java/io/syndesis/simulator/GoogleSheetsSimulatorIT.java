@@ -19,11 +19,13 @@ package io.syndesis.simulator;
 import com.consol.citrus.annotations.CitrusTest;
 import com.consol.citrus.dsl.junit.JUnit4CitrusTestDesigner;
 import com.consol.citrus.http.client.HttpClient;
+import com.consol.citrus.message.MessageType;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
@@ -45,7 +47,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testGetSpreadsheet() {
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("title", "TestData");
+        variable("title", "TestSheet");
         variable("accessToken", accessToken);
 
         http().client(simulatorClient)
@@ -65,7 +67,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @Test
     @CitrusTest
     public void testCreateSpreadsheet() {
-        variable("title", "TestData");
+        variable("title", "TestSheet");
         variable("accessToken", accessToken);
 
         http().client(simulatorClient)
@@ -87,7 +89,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testGetValues() {
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("sheet", "TestData");
+        variable("sheet", "TestSheet");
         variable("range", "A1:C5");
         variable("accessToken", accessToken);
 
@@ -109,7 +111,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testGetValuesBatch() {
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("sheet", "TestData");
+        variable("sheet", "TestSheet");
         variable("range", "A1:C5");
         variable("accessToken", accessToken);
 
@@ -141,7 +143,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testUpdateValues() {
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("sheet", "TestData");
+        variable("sheet", "TestSheet");
         variable("range", "A1:C5");
         variable("accessToken", accessToken);
 
@@ -168,7 +170,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testAppendValues() {
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("sheet", "TestData");
+        variable("sheet", "TestSheet");
         variable("range", "A1");
         variable("accessToken", accessToken);
 
@@ -195,7 +197,7 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
     @CitrusTest
     public void testClearValues() {
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("sheet", "TestData");
+        variable("sheet", "TestSheet");
         variable("range", "A1:D10");
         variable("accessToken", accessToken);
 
@@ -208,5 +210,26 @@ public class GoogleSheetsSimulatorIT extends JUnit4CitrusTestDesigner {
                 .receive()
                 .response(HttpStatus.OK)
                 .payload("{\"spreadsheetId\": \"${spreadsheetId}\", \"clearedRange\": \"${sheet}!${range}\"}");
+    }
+
+    /**
+     * Sends unsupported request to server.
+     */
+    @Test
+    @CitrusTest
+    public void testUnsupportedOperation() {
+        variable("accessToken", accessToken);
+
+        http().client(simulatorClient)
+                .send()
+                .post("/v4/spreadsheets/something/completely/different")
+                .header("Authorization", "Bearer ${accessToken}");
+
+        http().client(simulatorClient)
+                .receive()
+                .response(HttpStatus.INTERNAL_SERVER_ERROR)
+                .contentType(MediaType.TEXT_PLAIN_VALUE)
+                .messageType(MessageType.PLAINTEXT)
+                .payload("Unsupported operation on path '/v4/spreadsheets/something/completely/different'");
     }
 }

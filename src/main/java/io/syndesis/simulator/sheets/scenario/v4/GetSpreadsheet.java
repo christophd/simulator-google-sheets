@@ -19,10 +19,10 @@ package io.syndesis.simulator.sheets.scenario.v4;
 import com.consol.citrus.simulator.scenario.AbstractSimulatorScenario;
 import com.consol.citrus.simulator.scenario.Scenario;
 import com.consol.citrus.simulator.scenario.ScenarioDesigner;
-import com.consol.citrus.simulator.service.TemplateService;
 import io.syndesis.simulator.util.VariableHelper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -33,27 +33,21 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping(value = "/v4/spreadsheets/{spreadsheetId}", method = RequestMethod.GET)
 public class GetSpreadsheet extends AbstractSimulatorScenario {
 
-    private final TemplateService templates;
-
-    @Autowired
-    public GetSpreadsheet(TemplateService templates) {
-        this.templates = templates;
-    }
-
     @Override
     public void run(ScenarioDesigner scenario) {
         scenario
             .http()
             .receive()
             .get()
-            .validationCallback(VariableHelper::createVariablesFromUri);
+            .validationCallback(VariableHelper::createVariablesFromRequest);
 
-        scenario.createVariable("title", "TestData");
+        scenario.createVariable("title", "TestSheet");
 
         scenario
             .http()
             .send()
             .response(HttpStatus.OK)
-            .payload(templates.getJsonMessageTemplate("spreadsheet"));
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .payload(new ClassPathResource("templates/spreadsheet.json"));
     }
 }

@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.syndesis.simulator.util.VariableHelper;
 import org.hamcrest.Matchers;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 /**
  * @author Christoph Deppisch
@@ -109,6 +110,7 @@ public class TodoSheetScenario extends AbstractSimulatorScenario {
             .http()
             .send()
             .response(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
             .payload("${responsePayload}");
     }
 

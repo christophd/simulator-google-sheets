@@ -21,6 +21,7 @@ import com.consol.citrus.simulator.scenario.Scenario;
 import com.consol.citrus.simulator.scenario.ScenarioDesigner;
 import io.syndesis.simulator.util.VariableHelper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 /**
  * @author Christoph Deppisch
@@ -41,6 +42,7 @@ public class SolarSystemScenario extends AbstractSimulatorScenario {
         scenario.http()
                 .send()
                 .response(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .payload("citrus:readFile(templates/custom/solar-system-" + "citrus:lowerCase(${majorDimension})" + ".json)");
     }
 }

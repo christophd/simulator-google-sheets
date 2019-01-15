@@ -16,23 +16,30 @@
 
 package io.syndesis.simulator.sheets.scenario;
 
+import com.consol.citrus.http.message.HttpMessageHeaders;
 import com.consol.citrus.simulator.scenario.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 /**
  * @author Christoph Deppisch
  */
-@Scenario("InternalServerError")
+@Scenario("UnsupportedOperation")
 public class DefaultScenario extends AbstractSimulatorScenario {
 
     @Override
     public void run(ScenarioDesigner scenario) {
         scenario
-            .receive();
+            .receive()
+            .validationCallback((message, context) -> {
+                context.setVariable("path", message.getHeader(HttpMessageHeaders.HTTP_REQUEST_URI));
+            });
 
         scenario
             .http()
             .send()
-            .response(HttpStatus.INTERNAL_SERVER_ERROR);
+            .response(HttpStatus.INTERNAL_SERVER_ERROR)
+            .contentType(MediaType.TEXT_PLAIN_VALUE)
+            .payload("Unsupported operation on path '${path}'");
     }
 }

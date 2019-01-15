@@ -1,5 +1,5 @@
 {
   "range": "${sheet}!${range}",
-  "majorDimension": "ROWS",
+  "majorDimension": "${majorDimension}",
   "values": []
 }

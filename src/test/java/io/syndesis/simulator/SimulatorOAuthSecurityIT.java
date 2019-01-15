@@ -87,7 +87,7 @@ public class SimulatorOAuthSecurityIT extends JUnit4CitrusTestDesigner {
                         "}");
 
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("title", "TestData");
+        variable("title", "TestSheet");
 
         http().client(simulatorClient)
                 .send()
@@ -125,7 +125,7 @@ public class SimulatorOAuthSecurityIT extends JUnit4CitrusTestDesigner {
                         "}");
 
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("title", "TestData");
+        variable("title", "TestSheet");
 
         http().client(simulatorClient)
                 .send()
@@ -181,7 +181,7 @@ public class SimulatorOAuthSecurityIT extends JUnit4CitrusTestDesigner {
                         "}");
 
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("title", "TestData");
+        variable("title", "TestSheet");
 
         http().client(simulatorClient)
                 .send()
@@ -265,7 +265,7 @@ public class SimulatorOAuthSecurityIT extends JUnit4CitrusTestDesigner {
                         "}");
 
         variable("spreadsheetId", "citrus:randomString(44)");
-        variable("title", "TestData");
+        variable("title", "TestSheet");
 
         http().client(simulatorClient)
                 .send()

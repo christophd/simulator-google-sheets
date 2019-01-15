@@ -17,7 +17,7 @@ Clients are able to access the following simulator endpoints:
 * POST /v4/spreadsheets/{spreadsheetId}/values/{range}:append
 * POST /v4/spreadsheets/{spreadsheetId}/values/{range}:clear
  
-When the simulator receives a new request on of these endpoints the simulator will respond with a valid response in respect to the Google spreadsheet v4 API. The scenarios are designed to
+When the simulator receives a new request on one of these endpoints the simulator will respond with a valid response in respect to the Google spreadsheet v4 API. The scenarios are designed to
 respond with proper test data according to the request information. This means that spreadsheetId, range, majorDimension identifiers will be mapped to the response.
 
 In addition to these generic scenarios you can add your very customized and specific scenario that provides a proper response to your request.

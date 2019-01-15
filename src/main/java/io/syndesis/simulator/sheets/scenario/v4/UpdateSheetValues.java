@@ -27,13 +27,13 @@ import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.simulator.scenario.AbstractSimulatorScenario;
 import com.consol.citrus.simulator.scenario.Scenario;
 import com.consol.citrus.simulator.scenario.ScenarioDesigner;
-import com.consol.citrus.simulator.service.TemplateService;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import io.syndesis.simulator.util.VariableHelper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -45,12 +45,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 public class UpdateSheetValues extends AbstractSimulatorScenario {
 
     private JsonObjectParser jsonObjectParser = new JsonObjectParser.Builder(new JacksonFactory()).build();
-    private final TemplateService templates;
-
-    @Autowired
-    public UpdateSheetValues(TemplateService templates) {
-        this.templates = templates;
-    }
 
     @Override
     public void run(ScenarioDesigner scenario) {
@@ -77,6 +71,7 @@ public class UpdateSheetValues extends AbstractSimulatorScenario {
             .http()
             .send()
             .response(HttpStatus.OK)
-            .payload(templates.getJsonMessageTemplate("updateValuesResponse"));
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .payload(new ClassPathResource("templates/updateValuesResponse.json"));
     }
 }

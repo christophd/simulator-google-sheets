@@ -21,6 +21,7 @@ import com.consol.citrus.simulator.scenario.Scenario;
 import com.consol.citrus.simulator.scenario.ScenarioDesigner;
 import io.syndesis.simulator.util.VariableHelper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -43,6 +44,7 @@ public class ClearSheetValues extends AbstractSimulatorScenario {
             .http()
             .send()
             .response(HttpStatus.OK)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
             .payload("{\"spreadsheetId\": \"${spreadsheetId}\", \"clearedRange\": \"${sheet}!${range}\"}");
     }
 }
