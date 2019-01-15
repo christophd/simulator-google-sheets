@@ -16,21 +16,9 @@
 
 package io.syndesis.simulator.sheets.scenario.v4;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.simulator.scenario.AbstractSimulatorScenario;
 import com.consol.citrus.simulator.scenario.Scenario;
 import com.consol.citrus.simulator.scenario.ScenarioDesigner;
-import com.google.api.client.json.JsonObjectParser;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.sheets.v4.model.ValueRange;
-import io.syndesis.simulator.util.VariableHelper;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,28 +32,13 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @RequestMapping(value = "/v4/spreadsheets/{spreadsheetId}/values/{range}:append", method = RequestMethod.POST)
 public class AppendSheetValues extends AbstractSimulatorScenario {
 
-    private JsonObjectParser jsonObjectParser = new JsonObjectParser.Builder(new JacksonFactory()).build();
-
     @Override
     public void run(ScenarioDesigner scenario) {
         scenario
             .http()
             .receive()
             .put()
-            .validationCallback((message, testContext) -> {
-                VariableHelper.createVariablesFromUri(message, testContext);
-
-                try {
-                    ValueRange valueRange = jsonObjectParser.parseAndClose(new StringReader(message.getPayload(String.class)), ValueRange.class);
-                    List<List<Object>> values = Optional.ofNullable(valueRange.getValues()).orElse(Collections.emptyList());
-
-                    testContext.setVariable("updatedRows", values.size());
-                    testContext.setVariable("updatedColumns", Optional.ofNullable(values.get(0)).map(Collection::size).orElse(0));
-                    testContext.setVariable("updatedCells", values.size() * Optional.ofNullable(values.get(0)).map(Collection::size).orElse(0));
-                } catch (IOException e) {
-                    throw new CitrusRuntimeException("Failed to parse value range", e);
-                }
-            });
+            .validationCallback(new UpdateSheetValues.UpdateRequestHandler());
 
         scenario
             .http()
